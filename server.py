@@ -48,6 +48,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                     redirect =  _data[1] + "/"
                     Headers = "HTTP/1.1 301 Permanently moved to %s\r\n" % redirect
                     Headers += "Content-Type: text/html;\r\n"
+                    Headers += "Location: %s\r\n" % redirect
                     content = "<html><head></head><body><center><h1>301 - This Page is moved to %s .</h1></center></body></html>" % redirect
                     self.request.sendall(bytearray(Headers + "\r\n" + content, 'utf8'))
                 else:
