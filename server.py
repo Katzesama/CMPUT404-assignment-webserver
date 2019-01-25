@@ -44,7 +44,14 @@ class MyWebServer(socketserver.BaseRequestHandler):
             if OK:
                 self.OK_200(file_content, file_type)
             else:
-                self.not_found_404()
+                if file_type == "redirect":
+                    redirect =  _data[1] + "/"
+                    Headers = "HTTP/1.1 301 Permanently moved to %s\r\n" % redirect
+                    Headers += "Content-Type: text/html;\r\n"
+                    content = "<html><head></head><body><center><h1>301 - This Page is moved to %s .</h1></center></body></html>" % redirect
+                    self.request.sendall(bytearray(Headers + "\r\n" + content, 'utf8'))
+                else:
+                    self.not_found_404()
         else:
             Headers = "HTTP/1.1 405 Method Not Allowed\r\n"
             Headers += "Content-Type: text/html;\r\n"
@@ -71,7 +78,11 @@ class MyWebServer(socketserver.BaseRequestHandler):
                     return True, "html", resource_file
                 # no file type
                 else:
-                    return False, "empty", "nothing"
+                    file_path += "/"
+                    if os.path.exists(file_path):
+                        return False, "redirect", "nothing"
+                    else:
+                        return False, "empty", "nothing"
         # invalid path
         except:
             return False, "empty", "nothing"
